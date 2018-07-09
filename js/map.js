@@ -22,7 +22,7 @@ var TYPES = {
     ru: 'бунгало'
   }
 };
-var SIZE_PIN = '100' + ', ' + '50';
+var SIZE_PIN_END = 22;
 var ESC_KEYCODE = 27;
 var ENTER_KEYCODE = 13;
 
@@ -89,16 +89,28 @@ fillNotes();
 var copyPinsBlock = map.querySelector('.map__pins');
 var copyPinTemplate = document.querySelector('#copy_offers').content.querySelector('.map__pin');
 
+var closePopup = function (status, data) {
+  var mapCardPopup = document.querySelector('.popup');
+  if (status) {
+    map.removeChild(mapCardPopup);
+    document.removeEventListener('keydown', closePopupEscPressHandler);
+  }
+  renderCard(data);
+};
+
 var renderPins = function (note) {
   var onePin = copyPinTemplate.cloneNode(true);
+
   onePin.addEventListener('click', function () {
-    makePopupHidden(false);
+    closePopup(false, note);
   });
+
   onePin.addEventListener('keydown', function (evt) {
     if (evt.keyCode === ENTER_KEYCODE) {
-      makePopupHidden(false);
+      closePopup(false, note);
     }
   });
+
   onePin.style.left = note.location.x + 'px';
   onePin.style.top = note.location.y + 'px';
   var pinImage = onePin.querySelector('img');
@@ -129,10 +141,12 @@ var renderCard = function (note) {
   card.querySelector('.popup__type').textContent = TYPES[note.offer.type].ru;
   card.querySelector('.popup__text--capacity').textContent = note.offer.rooms + 'комнаты для' + note.offer.guests;
   card.querySelector('.popup__text--time').textContent = 'Заезд после' + note.offer.checkin + ',' + 'выезд до' + note.offer.checkout + '.';
+
   var closePopupBtn = card.querySelector('.popup__close');
   closePopupBtn.addEventListener('click', function () {
-    makePopupHidden(true);
+    closePopup(true);
   });
+
   var featuresElement = card.querySelector('.popup__features');
   var listElements = featuresElement.querySelectorAll('li');
   for (var i = 0; i < listElements.length; i++) {
@@ -155,19 +169,15 @@ var renderCard = function (note) {
 
   card.querySelector('.popup__avatar').src = note.author.avatar;
   copyCardBlock.insertBefore(card, beforeBlockFilter);
+
+  document.addEventListener('keydown', closePopupEscPressHandler);
+
   return card;
 };
-// закрыть по клавише ESC_KEYCODE
-var closePopupEscHandler = function (evt) {
+
+var closePopupEscPressHandler = function (evt) {
   if (evt.keyCode === ESC_KEYCODE) {
-    makePopupHidden(true);
-  }
-};
-var makePopupHidden = function (status) {
-  var mapCardPopup = document.querySelector('.popup');
-  mapCardPopup.hidden = status;
-  if (status) {
-    document.removeEventListener('keydown', closePopupEscHandler);
+    closePopup(true);
   }
 };
 
@@ -184,14 +194,23 @@ makeDisabled(true);
 var mapPinMain = document.querySelector('.map__pin--main');
 var activeForm = document.querySelector('.ad-form');
 var noteAdress = document.getElementById('address');
+var getPositionMainPin = function (active) {
+  var mapPinMainX = Math.floor(parseInt(mapPinMain.style.left, 10) + mapPinMain.offsetWidth / 2);
+  var mapPinMainY = Math.floor(parseInt(mapPinMain.style.top, 10) + mapPinMain.offsetHeight / 2);
+  if (active) {
+    mapPinMainY = Math.floor(parseInt(mapPinMain.style.top, 10) + mapPinMain.offsetHeight + active);
+  }
+  var PositionMainPin = mapPinMainX.toString(10) + ', ' + mapPinMainY.toString(10);
+  return PositionMainPin;
+};
+noteAdress.value = getPositionMainPin();
 
-mapPinMain.addEventListener('mouseup', function () {
+var MapPinMainMouseupHandler = function () {
   map.classList.remove('map--faded');
   activeForm.classList.remove('ad-form--disabled');
   makeDisabled(false);
-  noteAdress.value = SIZE_PIN;
-  noteAdress.setAttribute('disabled', 'disabled');
+  noteAdress.value = getPositionMainPin(SIZE_PIN_END);
   addPinsToFragment(true);
-  renderCard(notes[0]);
-  makePopupHidden(true);
-});
+  mapPinMain.removeEventListener('mouseup', MapPinMainMouseupHandler);
+};
+mapPinMain.addEventListener('mouseup', MapPinMainMouseupHandler);
