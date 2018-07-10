@@ -292,8 +292,10 @@ var resetButtonClickHandler = function (evt) {
   activeForm.classList.add('ad-form--disabled');
   resetButton.removeEventListener('click', resetButtonClickHandler);
 };
-
-
+var successPage = document.querySelector('.success');
+var noteFormSubmitHandler = function () {
+  successPage.classList.remove('hidden');
+};
 var MapPinMainMouseupHandler = function () {
   map.classList.remove('map--faded');
   activeForm.classList.remove('ad-form--disabled');
@@ -308,5 +310,7 @@ var MapPinMainMouseupHandler = function () {
   title.addEventListener('invalid', titleValidHandler);
   price.addEventListener('invalid', priceValidHandler);
   resetButton.addEventListener('click', resetButtonClickHandler);
+  noteForm.addEventListener('submit', noteFormSubmitHandler);
+
 };
 mapPinMain.addEventListener('mouseup', MapPinMainMouseupHandler);
