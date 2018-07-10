@@ -22,6 +22,9 @@ var TYPES = {
     ru: 'бунгало'
   }
 };
+var SIZE_PIN_END = 22;
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
 
 var typesArray = Object.keys(TYPES); // ['flat', 'house' ...]
 
@@ -83,12 +86,31 @@ var fillNotes = function () {
 
 fillNotes();
 
-map.classList.remove('map--faded');
 var copyPinsBlock = map.querySelector('.map__pins');
 var copyPinTemplate = document.querySelector('#copy_offers').content.querySelector('.map__pin');
 
+var closePopup = function (status, data) {
+  var mapCardPopup = document.querySelector('.popup');
+  if (status) {
+    map.removeChild(mapCardPopup);
+    document.removeEventListener('keydown', closePopupEscPressHandler);
+  }
+  renderCard(data);
+};
+
 var renderPins = function (note) {
   var onePin = copyPinTemplate.cloneNode(true);
+
+  onePin.addEventListener('click', function () {
+    closePopup(false, note);
+  });
+
+  onePin.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      closePopup(false, note);
+    }
+  });
+
   onePin.style.left = note.location.x + 'px';
   onePin.style.top = note.location.y + 'px';
   var pinImage = onePin.querySelector('img');
@@ -96,7 +118,6 @@ var renderPins = function (note) {
   pinImage.alt = note.offer.title;
   return onePin;
 };
-
 
 var addPinsToFragment = function () {
   var fragment = document.createDocumentFragment();
@@ -107,9 +128,6 @@ var addPinsToFragment = function () {
 
   copyPinsBlock.appendChild(fragment);
 };
-
-addPinsToFragment();
-
 
 var copyCardBlock = map;
 var beforeBlockFilter = document.querySelector('.map__filters-container');
@@ -123,9 +141,14 @@ var renderCard = function (note) {
   card.querySelector('.popup__type').textContent = TYPES[note.offer.type].ru;
   card.querySelector('.popup__text--capacity').textContent = note.offer.rooms + 'комнаты для' + note.offer.guests;
   card.querySelector('.popup__text--time').textContent = 'Заезд после' + note.offer.checkin + ',' + 'выезд до' + note.offer.checkout + '.';
+
+  var closePopupBtn = card.querySelector('.popup__close');
+  closePopupBtn.addEventListener('click', function () {
+    closePopup(true);
+  });
+
   var featuresElement = card.querySelector('.popup__features');
   var listElements = featuresElement.querySelectorAll('li');
-
   for (var i = 0; i < listElements.length; i++) {
     var liClass = listElements[i].classList[1].replace('popup__feature--', '');
     if (note.offer.features.indexOf(liClass) === -1) {
@@ -146,6 +169,48 @@ var renderCard = function (note) {
 
   card.querySelector('.popup__avatar').src = note.author.avatar;
   copyCardBlock.insertBefore(card, beforeBlockFilter);
+
+  document.addEventListener('keydown', closePopupEscPressHandler);
+
   return card;
 };
-renderCard(notes[0]);
+
+var closePopupEscPressHandler = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closePopup(true);
+  }
+};
+
+var noteFormFields = document.querySelectorAll('fieldset');
+var makeDisabled = function (status) {
+  if (noteFormFields.length > 0) {
+    [].forEach.call(noteFormFields, function (item) {
+      item.disabled = status;
+    });
+  }
+};
+makeDisabled(true);
+
+var mapPinMain = document.querySelector('.map__pin--main');
+var activeForm = document.querySelector('.ad-form');
+var noteAdress = document.getElementById('address');
+var getPositionMainPin = function (active) {
+  var mapPinMainX = Math.floor(parseInt(mapPinMain.style.left, 10) + mapPinMain.offsetWidth / 2);
+  var mapPinMainY = Math.floor(parseInt(mapPinMain.style.top, 10) + mapPinMain.offsetHeight / 2);
+  if (active) {
+    mapPinMainY = Math.floor(parseInt(mapPinMain.style.top, 10) + mapPinMain.offsetHeight + active);
+  }
+  var PositionMainPin = mapPinMainX.toString(10) + ', ' + mapPinMainY.toString(10);
+  return PositionMainPin;
+};
+noteAdress.value = getPositionMainPin();
+
+var MapPinMainMouseupHandler = function () {
+  map.classList.remove('map--faded');
+  activeForm.classList.remove('ad-form--disabled');
+  makeDisabled(false);
+  noteAdress.value = getPositionMainPin(SIZE_PIN_END);
+  addPinsToFragment(true);
+  mapPinMain.removeEventListener('mouseup', MapPinMainMouseupHandler);
+};
+mapPinMain.addEventListener('mouseup', MapPinMainMouseupHandler);
