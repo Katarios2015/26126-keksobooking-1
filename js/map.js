@@ -25,6 +25,18 @@ var TYPES = {
 var SIZE_PIN_END = 22;
 var ESC_KEYCODE = 27;
 var ENTER_KEYCODE = 13;
+var TYPE_PRICE = {
+  'flat': '1000',
+  'bungalo': '0',
+  'house': '5000',
+  'palace': '10000'
+};
+var ROOMS_CAPACITY = {
+  '1': ['1'],
+  '2': ['2', '1'],
+  '3': ['3', '2', '1'],
+  '100': ['0']
+};
 
 var typesArray = Object.keys(TYPES); // ['flat', 'house' ...]
 
@@ -205,6 +217,83 @@ var getPositionMainPin = function (active) {
 };
 noteAdress.value = getPositionMainPin();
 
+var roomNumber = document.querySelector('#room_number');
+var capacity = document.querySelector('#capacity');
+var type = document.querySelector('#type');
+var price = document.querySelector('#price');
+var title = document.querySelector('#title');
+
+var roomNumberChangeHandler = function () {
+  if (capacity.options.length > 0) {
+    [].forEach.call(capacity.options, function (item) {
+      item.selected = (ROOMS_CAPACITY[roomNumber.value][0] === item.value) ? true : false;
+      item.hidden = (ROOMS_CAPACITY[roomNumber.value].indexOf(item.value) >= 0) ? false : true;
+    });
+  }
+};
+roomNumberChangeHandler();
+
+
+var typeChangeHandler = function () {
+  var minPrice = TYPE_PRICE[type.value];
+  price.min = minPrice;
+  price.placeholder = minPrice;
+};
+
+typeChangeHandler();
+
+var timeout = document.querySelector('#timeout');
+var timein = document.querySelector('#timein');
+
+var timeinChangeHandler = function () {
+  timeout.value = timein.value;
+};
+var timeoutChangeHandler = function () {
+  timein.value = timeout.value;
+};
+
+var priceValidHandler = function () {
+  if (price.validity.rangeOverflow) {
+    price.setCustomValidity('Максимальная цена за ночь  1 000 000р.');
+  } else if (price.validity.valueMissing) {
+    price.setCustomValidity('Поле обязательно для заполнения');
+  } else {
+    price.setCustomValidity('');
+  }
+};
+
+var titleValidHandler = function () {
+  if (title.validity.tooShort) {
+    title.setCustomValidity('Заголовок объявления должен быть не менее 30 символов');
+  } else if (title.validity.tooLong) {
+    title.setCustomValidity('Заголовок объявления должен быть не более 100 символов');
+  } else if (title.validity.valueMissing) {
+    title.setCustomValidity('Поле обязательно для заполнения');
+  } else {
+    title.setCustomValidity('');
+  }
+};
+var noteForm = document.querySelector('.ad-form');
+var resetButton = noteForm.querySelector('.ad-form__reset');
+
+var removePins = function () {
+  var pins = map.querySelectorAll('.map__pin');
+  [].forEach.call(pins, function (element) {
+    copyPinsBlock.removeChild(element);
+  });
+};
+var resetButtonClickHandler = function (evt) {
+  evt.preventDefault();
+  noteForm.reset();
+  removePins();
+  makeDisabled(true);
+  map.classList.add('map--faded');
+  noteAdress.value = getPositionMainPin(SIZE_PIN_END);
+  activeForm.classList.add('ad-form--disabled');
+  resetButton.removeEventListener('click', resetButtonClickHandler);
+};
+
+
 var MapPinMainMouseupHandler = function () {
   map.classList.remove('map--faded');
   activeForm.classList.remove('ad-form--disabled');
@@ -212,5 +301,12 @@ var MapPinMainMouseupHandler = function () {
   noteAdress.value = getPositionMainPin(SIZE_PIN_END);
   addPinsToFragment(true);
   mapPinMain.removeEventListener('mouseup', MapPinMainMouseupHandler);
+  roomNumber.addEventListener('change', roomNumberChangeHandler);
+  type.addEventListener('change', typeChangeHandler);
+  timein.addEventListener('change', timeinChangeHandler);
+  timeout.addEventListener('change', timeoutChangeHandler);
+  title.addEventListener('invalid', titleValidHandler);
+  price.addEventListener('invalid', priceValidHandler);
+  resetButton.addEventListener('click', resetButtonClickHandler);
 };
 mapPinMain.addEventListener('mouseup', MapPinMainMouseupHandler);
