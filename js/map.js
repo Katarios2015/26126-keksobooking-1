@@ -105,7 +105,7 @@ var closePopup = function (status, data) {
   var mapCardPopup = document.querySelector('.popup');
   if (status) {
     map.removeChild(mapCardPopup);
-    document.removeEventListener('keydown', closePopupEscPressHandler);
+    document.removeEventListener('keydown', PopupCloseEscPressHandler);
   }
   renderCard(data);
 };
@@ -182,12 +182,12 @@ var renderCard = function (note) {
   card.querySelector('.popup__avatar').src = note.author.avatar;
   copyCardBlock.insertBefore(card, beforeBlockFilter);
 
-  document.addEventListener('keydown', closePopupEscPressHandler);
+  document.addEventListener('keydown', PopupCloseEscPressHandler);
 
   return card;
 };
 
-var closePopupEscPressHandler = function (evt) {
+var PopupCloseEscPressHandler = function (evt) {
   if (evt.keyCode === ESC_KEYCODE) {
     closePopup(true);
   }
@@ -265,6 +265,7 @@ var priceValidHandler = function () {
 var titleValidHandler = function () {
   if (title.validity.tooShort) {
     title.setCustomValidity('Заголовок объявления должен быть не менее 30 символов');
+    title.style.borderColor = '#C62222';
   } else if (title.validity.tooLong) {
     title.setCustomValidity('Заголовок объявления должен быть не более 100 символов');
   } else if (title.validity.valueMissing) {
@@ -292,10 +293,26 @@ var resetButtonClickHandler = function (evt) {
   activeForm.classList.add('ad-form--disabled');
   resetButton.removeEventListener('click', resetButtonClickHandler);
 };
+
 var successPage = document.querySelector('.success');
+var SuccessPageCloseEscPressHandler = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    successPage.classList.add('hidden');
+  }
+  successPage.addEventListener('keydown', SuccessPageCloseEscPressHandler);
+};
+var SuccessPageMouseUpHandler = function () {
+  successPage.classList.add('hidden');
+  successPage.removeEventListener('mouseup', SuccessPageMouseUpHandler);
+};
+
 var noteFormSubmitHandler = function () {
   successPage.classList.remove('hidden');
+  noteForm.removeEventListener('submit', noteFormSubmitHandler);
+  successPage.addEventListener('keydown', SuccessPageCloseEscPressHandler);
+  successPage.addEventListener('mouseup', SuccessPageMouseUpHandler);
 };
+
 var MapPinMainMouseupHandler = function () {
   map.classList.remove('map--faded');
   activeForm.classList.remove('ad-form--disabled');
@@ -311,6 +328,5 @@ var MapPinMainMouseupHandler = function () {
   price.addEventListener('invalid', priceValidHandler);
   resetButton.addEventListener('click', resetButtonClickHandler);
   noteForm.addEventListener('submit', noteFormSubmitHandler);
-
 };
 mapPinMain.addEventListener('mouseup', MapPinMainMouseupHandler);
