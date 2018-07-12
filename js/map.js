@@ -41,6 +41,7 @@ var ROOMS_CAPACITY = {
 var typesArray = Object.keys(TYPES); // ['flat', 'house' ...]
 
 var map = document.querySelector('.map');
+var closePopupBtn = null;
 
 var notes = [];
 
@@ -101,28 +102,29 @@ fillNotes();
 var copyPinsBlock = map.querySelector('.map__pins');
 var copyPinTemplate = document.querySelector('#copy_offers').content.querySelector('.map__pin');
 
-var closePopup = function (status, data) {
-  var mapCardPopup = document.querySelector('.popup');
-  if (status) {
+var closePopup = function () {
+  var mapCardPopup = map.querySelector('.popup');
+
+  if (mapCardPopup) {
     map.removeChild(mapCardPopup);
     document.removeEventListener('keydown', PopupCloseEscPressHandler);
   }
-  renderCard(data);
 };
 
 var renderPins = function (note) {
   var onePin = copyPinTemplate.cloneNode(true);
 
   onePin.addEventListener('click', function () {
-    closePopup(false, note);
+    closePopup();
+    renderCard(note);
   });
 
   onePin.addEventListener('keydown', function (evt) {
     if (evt.keyCode === ENTER_KEYCODE) {
-      closePopup(false, note);
+      closePopup();
+      renderCard(note);
     }
   });
-
   onePin.style.left = note.location.x + 'px';
   onePin.style.top = note.location.y + 'px';
   var pinImage = onePin.querySelector('img');
@@ -145,6 +147,10 @@ var copyCardBlock = map;
 var beforeBlockFilter = document.querySelector('.map__filters-container');
 var copyCardTemplate = document.querySelector('#copy_offers').content.querySelector('.map__card');
 
+var closeButtonHandler = function () {
+  closePopup();
+};
+
 var renderCard = function (note) {
   var card = copyCardTemplate.cloneNode(true);
   card.querySelector('.popup__title').textContent = note.offer.title;
@@ -154,10 +160,8 @@ var renderCard = function (note) {
   card.querySelector('.popup__text--capacity').textContent = note.offer.rooms + 'комнаты для' + note.offer.guests;
   card.querySelector('.popup__text--time').textContent = 'Заезд после' + note.offer.checkin + ',' + 'выезд до' + note.offer.checkout + '.';
 
-  var closePopupBtn = card.querySelector('.popup__close');
-  closePopupBtn.addEventListener('click', function () {
-    closePopup(true);
-  });
+  closePopupBtn = card.querySelector('.popup__close');
+  closePopupBtn.addEventListener('click', closeButtonHandler);
 
   var featuresElement = card.querySelector('.popup__features');
   var listElements = featuresElement.querySelectorAll('li');
@@ -167,7 +171,6 @@ var renderCard = function (note) {
       featuresElement.removeChild(listElements[i]);
     }
   }
-
   card.querySelector('.popup__description').textContent = note.offer.description;
   var photos = card.querySelector('.popup__photos');
   var photoElement = photos.querySelector('.popup__photo');
@@ -178,18 +181,15 @@ var renderCard = function (note) {
     photos.appendChild(newPhoto);
   }
   photos.removeChild(photoElement);
-
   card.querySelector('.popup__avatar').src = note.author.avatar;
   copyCardBlock.insertBefore(card, beforeBlockFilter);
-
   document.addEventListener('keydown', PopupCloseEscPressHandler);
-
   return card;
 };
 
 var PopupCloseEscPressHandler = function (evt) {
   if (evt.keyCode === ESC_KEYCODE) {
-    closePopup(true);
+    closePopup();
   }
 };
 
@@ -233,7 +233,6 @@ var roomNumberChangeHandler = function () {
 };
 roomNumberChangeHandler();
 
-
 var typeChangeHandler = function () {
   var minPrice = TYPE_PRICE[type.value];
   price.min = minPrice;
@@ -257,60 +256,48 @@ var priceValidHandler = function () {
     price.setCustomValidity('Максимальная цена за ночь  1 000 000р.');
   } else if (price.validity.valueMissing) {
     price.setCustomValidity('Поле обязательно для заполнения');
-  } else {
-    price.setCustomValidity('');
   }
+  price.style.borderColor = '#C62222';
 };
 
 var titleValidHandler = function () {
-  if (title.validity.tooShort) {
+  if (title.validity.valueMissing || title.validity.tooShort) {
     title.setCustomValidity('Заголовок объявления должен быть не менее 30 символов');
-    title.style.borderColor = '#C62222';
   } else if (title.validity.tooLong) {
     title.setCustomValidity('Заголовок объявления должен быть не более 100 символов');
-  } else if (title.validity.valueMissing) {
-    title.setCustomValidity('Поле обязательно для заполнения');
-  } else {
-    title.setCustomValidity('');
   }
+  title.style.borderColor = '#C62222';
 };
 var noteForm = document.querySelector('.ad-form');
 var resetButton = noteForm.querySelector('.ad-form__reset');
 
 var removePins = function () {
-  var pins = map.querySelectorAll('.map__pin');
+  var pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
   [].forEach.call(pins, function (element) {
     copyPinsBlock.removeChild(element);
   });
 };
+var titleInputHandler = function () {
+  title.setCustomValidity('');
+  title.style.borderColor = 'none';
+};
+var priceInputHandler = function () {
+  price.setCustomValidity('');
+  price.style.borderColor = 'none';
+};
+
 var resetButtonClickHandler = function (evt) {
   evt.preventDefault();
   noteForm.reset();
   removePins();
+  closePopup();
   makeDisabled(true);
+  roomNumberChangeHandler();
   map.classList.add('map--faded');
   noteAdress.value = getPositionMainPin(SIZE_PIN_END);
   activeForm.classList.add('ad-form--disabled');
   resetButton.removeEventListener('click', resetButtonClickHandler);
-};
-
-var successPage = document.querySelector('.success');
-var SuccessPageCloseEscPressHandler = function (evt) {
-  if (evt.keyCode === ESC_KEYCODE) {
-    successPage.classList.add('hidden');
-  }
-  successPage.addEventListener('keydown', SuccessPageCloseEscPressHandler);
-};
-var SuccessPageMouseUpHandler = function () {
-  successPage.classList.add('hidden');
-  successPage.removeEventListener('mouseup', SuccessPageMouseUpHandler);
-};
-
-var noteFormSubmitHandler = function () {
-  successPage.classList.remove('hidden');
-  noteForm.removeEventListener('submit', noteFormSubmitHandler);
-  successPage.addEventListener('keydown', SuccessPageCloseEscPressHandler);
-  successPage.addEventListener('mouseup', SuccessPageMouseUpHandler);
+  mapPinMain.addEventListener('mouseup', MapPinMainMouseupHandler);
 };
 
 var MapPinMainMouseupHandler = function () {
@@ -326,7 +313,8 @@ var MapPinMainMouseupHandler = function () {
   timeout.addEventListener('change', timeoutChangeHandler);
   title.addEventListener('invalid', titleValidHandler);
   price.addEventListener('invalid', priceValidHandler);
+  title.addEventListener('input', titleInputHandler);
+  price.addEventListener('input', priceInputHandler);
   resetButton.addEventListener('click', resetButtonClickHandler);
-  noteForm.addEventListener('submit', noteFormSubmitHandler);
 };
 mapPinMain.addEventListener('mouseup', MapPinMainMouseupHandler);
