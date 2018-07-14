@@ -171,6 +171,7 @@ var renderCard = function (note) {
       featuresElement.removeChild(listElements[i]);
     }
   }
+
   card.querySelector('.popup__description').textContent = note.offer.description;
   var photos = card.querySelector('.popup__photos');
   var photoElement = photos.querySelector('.popup__photo');
@@ -181,9 +182,12 @@ var renderCard = function (note) {
     photos.appendChild(newPhoto);
   }
   photos.removeChild(photoElement);
+
   card.querySelector('.popup__avatar').src = note.author.avatar;
   copyCardBlock.insertBefore(card, beforeBlockFilter);
+
   document.addEventListener('keydown', PopupCloseEscPressHandler);
+
   return card;
 };
 
@@ -233,6 +237,7 @@ var roomNumberChangeHandler = function () {
 };
 roomNumberChangeHandler();
 
+
 var typeChangeHandler = function () {
   var minPrice = TYPE_PRICE[type.value];
   price.min = minPrice;
@@ -263,11 +268,10 @@ var priceValidHandler = function () {
 var titleValidHandler = function () {
   if (title.validity.valueMissing || title.validity.tooShort) {
     title.setCustomValidity('Заголовок объявления должен быть не менее 30 символов');
-    title.style.borderColor = '#C62222';
   } else if (title.validity.tooLong) {
     title.setCustomValidity('Заголовок объявления должен быть не более 100 символов');
-    title.style.borderColor = '#C62222';
   }
+  title.style.borderColor = '#C62222';
 };
 var noteForm = document.querySelector('.ad-form');
 var resetButton = noteForm.querySelector('.ad-form__reset');
@@ -277,6 +281,18 @@ var removePins = function () {
   [].forEach.call(pins, function (element) {
     copyPinsBlock.removeChild(element);
   });
+};
+
+var successPage = document.querySelector('.success');
+var SuccessPageCloseEscPressHandler = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    successPage.classList.add('hidden');
+  }
+  successPage.addEventListener('keydown', SuccessPageCloseEscPressHandler);
+};
+var SuccessPageMouseUpHandler = function () {
+  successPage.classList.add('hidden');
+  successPage.removeEventListener('mouseup', SuccessPageMouseUpHandler);
 };
 var titleInputHandler = function () {
   title.setCustomValidity('');
