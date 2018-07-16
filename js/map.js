@@ -205,7 +205,7 @@ makeDisabled(true);
 
 var mapPinMain = document.querySelector('.map__pin--main');
 var activeForm = document.querySelector('.ad-form');
-var noteAdress = document.getElementById('address');
+var noteAdress = document.querySelector('#address');
 var getPositionMainPin = function (active) {
   var mapPinMainX = Math.floor(parseInt(mapPinMain.style.left, 10) + mapPinMain.offsetWidth / 2);
   var mapPinMainY = Math.floor(parseInt(mapPinMain.style.top, 10) + mapPinMain.offsetHeight / 2);
@@ -263,10 +263,11 @@ var priceValidHandler = function () {
 var titleValidHandler = function () {
   if (title.validity.valueMissing || title.validity.tooShort) {
     title.setCustomValidity('Заголовок объявления должен быть не менее 30 символов');
+    title.style.borderColor = '#C62222';
   } else if (title.validity.tooLong) {
     title.setCustomValidity('Заголовок объявления должен быть не более 100 символов');
+    title.style.borderColor = '#C62222';
   }
-  title.style.borderColor = '#C62222';
 };
 var noteForm = document.querySelector('.ad-form');
 var resetButton = noteForm.querySelector('.ad-form__reset');
@@ -286,6 +287,31 @@ var priceInputHandler = function () {
   price.style.borderColor = 'none';
 };
 
+var mapFiltersBlock = map.querySelector('.map__filters-container');
+
+var getCurrentCoords = function (elem) {
+  var currentElement = elem.getBoundingClientRect();
+  return {
+    top: currentElement.top + pageYOffset,
+    left: currentElement.left + pageXOffset
+  };
+};
+
+var InitialCoordsMainPin = {
+  top: mapPinMain.style.top,
+  left: mapPinMain.style.left
+};
+
+var replaseMainPinToInitial = function () {
+  var LastCoordsMainPin = getCurrentCoords(mapPinMain);
+  if (LastCoordsMainPin.left !== InitialCoordsMainPin.left) {
+    mapPinMain.style.left = InitialCoordsMainPin.left;
+  }
+  if (LastCoordsMainPin.top !== InitialCoordsMainPin.top) {
+    mapPinMain.style.top = InitialCoordsMainPin.top;
+  }
+};
+
 var resetButtonClickHandler = function (evt) {
   evt.preventDefault();
   noteForm.reset();
@@ -294,27 +320,68 @@ var resetButtonClickHandler = function (evt) {
   makeDisabled(true);
   roomNumberChangeHandler();
   map.classList.add('map--faded');
-  noteAdress.value = getPositionMainPin(SIZE_PIN_END);
+  replaseMainPinToInitial();
+  noteAdress.value = getPositionMainPin();
   activeForm.classList.add('ad-form--disabled');
   resetButton.removeEventListener('click', resetButtonClickHandler);
-  mapPinMain.addEventListener('mouseup', MapPinMainMouseupHandler);
+  mapPinMain.addEventListener('mousedown', mapPinMainMouseDownHandler);
 };
 
-var MapPinMainMouseupHandler = function () {
-  map.classList.remove('map--faded');
-  activeForm.classList.remove('ad-form--disabled');
-  makeDisabled(false);
-  noteAdress.value = getPositionMainPin(SIZE_PIN_END);
-  addPinsToFragment(true);
-  mapPinMain.removeEventListener('mouseup', MapPinMainMouseupHandler);
-  roomNumber.addEventListener('change', roomNumberChangeHandler);
-  type.addEventListener('change', typeChangeHandler);
-  timein.addEventListener('change', timeinChangeHandler);
-  timeout.addEventListener('change', timeoutChangeHandler);
-  title.addEventListener('invalid', titleValidHandler);
-  price.addEventListener('invalid', priceValidHandler);
-  title.addEventListener('input', titleInputHandler);
-  price.addEventListener('input', priceInputHandler);
-  resetButton.addEventListener('click', resetButtonClickHandler);
+var mapPinMainMouseDownHandler = function (evt) {
+  evt.preventDefault();
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+  var mapPinMainCoords = getCurrentCoords(mapPinMain);
+  var mapCoords = getCurrentCoords(map);
+  var shift = {
+    x: startCoords.x - mapPinMainCoords.left,
+    y: startCoords.y - mapPinMainCoords.top
+  };
+
+  var mouseMoveHandler = function (moveEvt) {
+    moveEvt.preventDefault();
+    var newMapPinMainLeft = moveEvt.clientX - shift.x - mapCoords.left;
+    var newMapPinMainTop = moveEvt.clientY - shift.y;
+
+    if (newMapPinMainLeft < 0) {
+      newMapPinMainLeft = 0;
+    }
+    var mapRightEdge = map.offsetWidth - mapPinMain.offsetWidth;
+    if (newMapPinMainLeft > mapRightEdge) {
+      newMapPinMainLeft = mapRightEdge;
+    }
+    mapPinMain.style.left = newMapPinMainLeft + 'px';
+    if (newMapPinMainTop < 0) {
+      newMapPinMainTop = 0;
+    }
+    var mapBottomEdge = map.offsetHeight + map.offsetTop - mapFiltersBlock.offsetHeight - mapPinMain.offsetHeight - SIZE_PIN_END;
+    if (newMapPinMainTop > mapBottomEdge) {
+      newMapPinMainTop = mapBottomEdge;
+    }
+    mapPinMain.style.top = newMapPinMainTop + 'px';
+  };
+  var MapPinMainMouseupHandler = function (upEvt) {
+    upEvt.preventDefault();
+    document.removeEventListener('mouseup', MapPinMainMouseupHandler);
+    document.removeEventListener('mousemove', mouseMoveHandler);
+    map.classList.remove('map--faded');
+    activeForm.classList.remove('ad-form--disabled');
+    makeDisabled(false);
+    noteAdress.value = getPositionMainPin(SIZE_PIN_END);
+    addPinsToFragment(true);
+    roomNumber.addEventListener('change', roomNumberChangeHandler);
+    type.addEventListener('change', typeChangeHandler);
+    timein.addEventListener('change', timeinChangeHandler);
+    timeout.addEventListener('change', timeoutChangeHandler);
+    title.addEventListener('invalid', titleValidHandler);
+    price.addEventListener('invalid', priceValidHandler);
+    title.addEventListener('input', titleInputHandler);
+    price.addEventListener('input', priceInputHandler);
+    resetButton.addEventListener('click', resetButtonClickHandler);
+  };
+  document.addEventListener('mousemove', mouseMoveHandler);
+  document.addEventListener('mouseup', MapPinMainMouseupHandler);
 };
-mapPinMain.addEventListener('mouseup', MapPinMainMouseupHandler);
+mapPinMain.addEventListener('mousedown', mapPinMainMouseDownHandler);
