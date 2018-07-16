@@ -287,7 +287,6 @@ var priceInputHandler = function () {
   price.style.borderColor = 'none';
 };
 
-var mapPinMainImg = mapPinMain.querySelector('img');
 var mapFiltersBlock = map.querySelector('.map__filters-container');
 
 var getCurrentCoords = function (elem) {
@@ -325,7 +324,7 @@ var resetButtonClickHandler = function (evt) {
   noteAdress.value = getPositionMainPin();
   activeForm.classList.add('ad-form--disabled');
   resetButton.removeEventListener('click', resetButtonClickHandler);
-  mapPinMainImg.addEventListener('mousedown', mapPinMainMouseDownHandler);
+  mapPinMain.addEventListener('mousedown', mapPinMainMouseDownHandler);
 };
 
 var mapPinMainMouseDownHandler = function (evt) {
@@ -385,4 +384,4 @@ var mapPinMainMouseDownHandler = function (evt) {
   document.addEventListener('mousemove', mouseMoveHandler);
   document.addEventListener('mouseup', MapPinMainMouseupHandler);
 };
-mapPinMainImg.addEventListener('mousedown', mapPinMainMouseDownHandler);
+mapPinMain.addEventListener('mousedown', mapPinMainMouseDownHandler);
