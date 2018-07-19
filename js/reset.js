@@ -1,7 +1,6 @@
 'use strict';
 (function () {
-  var noteForm = document.querySelector('.ad-form');
-  var resetButton = noteForm.querySelector('.ad-form__reset');
+  var resetButton = window.form.noteForm.querySelector('.ad-form__reset');
   var removePins = function () {
     var pins = window.map.mapBlock.querySelectorAll('.map__pin:not(.map__pin--main)');
     [].forEach.call(pins, function (element) {
@@ -25,7 +24,7 @@
 
   var resetButtonClickHandler = function (evt) {
     evt.preventDefault();
-    noteForm.reset();
+    window.form.noteForm.reset();
     removePins();
     window.card.closePopup();
     window.form.makeDisabled(true);
@@ -38,7 +37,7 @@
     window.map.mapPinMain.addEventListener('mousedown', window.map.mapPinMainMouseDownHandler);
   };
   window.reset = {
-    resetButton: noteForm.querySelector('.ad-form__reset'),
-    resetButtonClickHandler: resetButtonClickHandler,
+    resetButton: window.form.noteForm.querySelector('.ad-form__reset'),
+    resetButtonClickHandler: resetButtonClickHandler
   };
 })();

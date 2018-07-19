@@ -55,7 +55,7 @@
       window.form.activeForm.classList.remove('ad-form--disabled');
       window.form.makeDisabled(false);
       window.form.noteAdress.value = window.form.getPositionMainPin(SIZE_PIN_END);
-      window.pin.addPinsToFragment(true);
+      window.pin.addPinsToFragment();
       window.form.roomNumber.addEventListener('change', window.form.roomNumberChangeHandler);
       window.form.type.addEventListener('change', window.form.typeChangeHandler);
       window.form.timein.addEventListener('change', window.form.timeinChangeHandler);

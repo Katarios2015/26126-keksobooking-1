@@ -86,7 +86,40 @@
     price.setCustomValidity('');
     price.style.borderColor = 'none';
   };
+  var successPage = document.querySelector('.success');
+  var SuccessPageCloseEscPressHandler = function (evt) {
+    window.utils.isEscEvent(evt, function () {
+      successPage.classList.add('hidden');
+    });
+    document.removeEventListener('keydown', SuccessPageCloseEscPressHandler);
+  };
+  var SuccessPageClickHandler = function () {
+    successPage.classList.add('hidden');
+    successPage.removeEventListener('click', SuccessPageClickHandler);
+  };
+  var noteForm = document.querySelector('.ad-form');
+  var successHandlerUpload = function () {
+    successPage.classList.remove('hidden');
+    successPage.addEventListener('click', SuccessPageClickHandler);
+    document.addEventListener('keydown', SuccessPageCloseEscPressHandler);
+  };
+  var errorHandlerUpload = function (errorMessage) {
+    var node = document.createElement('div');
+    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: gray;';
+    node.style.position = 'absolute';
+    node.style.left = 0;
+    node.style.right = 0;
+    node.style.fontSize = '30px';
+    node.textContent = errorMessage;
+    document.body.insertAdjacentElement('afterbegin', node);
+  };
+  noteForm.addEventListener('submit', function (evt) {
+    window.backend.upload(new FormData(noteForm), successHandlerUpload, errorHandlerUpload);
+    window.reset.resetButtonClickHandler(evt);
+  });
+
   window.form = {
+    noteForm: noteForm,
     activeForm: document.querySelector('.ad-form'),
     noteAdress: noteAdress,
     roomNumber: roomNumber,
