@@ -22,12 +22,10 @@
     pinImage.alt = note.offer.title;
     return onePin;
   };
-  var successHandler = function (notes) {
-    var fragment = document.createDocumentFragment();
-    for (var i = 0; i < notes.length; i++) {
-      fragment.appendChild(renderPins(notes[i]));
-    }
-    copyPinsBlock.appendChild(fragment);
+  var offers = [];
+  var successHandler = function (data) {
+    offers = data.slice();
+    renderPins(offers);
   };
   var errorHandler = function (errorMessage) {
     var node = document.createElement('div');

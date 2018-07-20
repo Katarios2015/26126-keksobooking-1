@@ -24,7 +24,6 @@
       x: startCoords.x - mapPinMainCoords.left,
       y: startCoords.y - mapPinMainCoords.top
     };
-
     var mouseMoveHandler = function (moveEvt) {
       moveEvt.preventDefault();
       var newMapPinMainLeft = moveEvt.clientX - shift.x - mapCoords.left;
@@ -47,6 +46,11 @@
       }
       mapPinMain.style.top = newMapPinMainTop + 'px';
     };
+    var mapFiltersChangeHandler = function () {
+      window.pin.removeChild('.map__pin');
+      window.card.closePopup();
+      window.debounce(window.filters.updatePins(offers), 500);// ЗАМЕНИТЬ
+    };
     var mapPinMainMouseupHandler = function (upEvt) {
       upEvt.preventDefault();
       document.removeEventListener('mouseup', mapPinMainMouseupHandler);
@@ -64,6 +68,7 @@
       window.form.price.addEventListener('invalid', window.form.priceValidHandler);
       window.form.title.addEventListener('input', window.form.titleInputHandler);
       window.form.price.addEventListener('input', window.form.priceInputHandler);
+      window.filters.mapFilters.addEventListener('change', mapFiltersChangeHandler);
       window.reset.resetButton.addEventListener('click', window.reset.resetButtonClickHandler);
     };
     document.addEventListener('mousemove', mouseMoveHandler);
