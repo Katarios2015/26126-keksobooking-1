@@ -32,7 +32,7 @@
     window.map.mapPinMain.addEventListener('mousedown', window.map.mapPinMainMouseDownHandler);
   };
   window.reset = {
-    resetButton: window.form.noteForm.querySelector('.ad-form__reset'),
-    resetButtonClickHandler: resetButtonClickHandler
+    button: window.form.noteForm.querySelector('.ad-form__reset'),
+    handler: resetButtonClickHandler
   };
 })();

@@ -35,6 +35,7 @@
   var offers = [];
   var successHandler = function (data) {
     offers = data.slice();
+    renderPins(offers.slice(0, 5));
   };
   var errorHandler = function (errorMessage) {
     var node = document.createElement('div');
@@ -54,14 +55,15 @@
     });
   };
 
-  window.backend.load(successHandler, errorHandler);
-
   window.pin = {
     copyPinsBlock: copyPinsBlock,
     offers: function () {
       return offers;
     },
     remove: removePins,
-    render: renderPins
+    render: renderPins,
+    load: function () {
+      window.backend.load(successHandler, errorHandler);
+    }
   };
 })();
