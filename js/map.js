@@ -1,6 +1,7 @@
 'use strict';
 (function () {
   var SIZE_PIN_END = 22;
+  var DEBOUNCE_TIMEOUT = 500;
   var mapBlock = document.querySelector('.map');
   var mapPinMain = document.querySelector('.map__pin--main');
   var mapFiltersBlock = mapBlock.querySelector('.map__filters-container');
@@ -49,7 +50,7 @@
     var mapFiltersChangeHandler = function () {
       window.pin.remove();
       window.card.closePopup();
-      window.debounce(window.filters.updatePins(window.pin.offers()), 500);// ЗАМЕНИТЬ
+      window.debounce(window.filters.updatePins(window.pin.offers()), DEBOUNCE_TIMEOUT);
     };
     var mapPinMainMouseupHandler = function (upEvt) {
       upEvt.preventDefault();
@@ -58,18 +59,18 @@
       mapBlock.classList.remove('map--faded');
       window.form.activeForm.classList.remove('ad-form--disabled');
       window.form.makeDisabled(false);
+      window.form.title.addEventListener('invalid', window.form.titleValidHandler);
+      window.form.price.addEventListener('invalid', window.form.priceValidHandler);
       window.form.noteAdress.value = window.form.getPositionMainPin(SIZE_PIN_END);
       window.pin.render(window.pin.offers().slice(0, 5));
       window.form.roomNumber.addEventListener('change', window.form.roomNumberChangeHandler);
       window.form.type.addEventListener('change', window.form.typeChangeHandler);
       window.form.timein.addEventListener('change', window.form.timeinChangeHandler);
       window.form.timeout.addEventListener('change', window.form.timeoutChangeHandler);
-      window.form.title.addEventListener('invalid', window.form.titleValidHandler);
-      window.form.price.addEventListener('invalid', window.form.priceValidHandler);
       window.form.title.addEventListener('input', window.form.titleInputHandler);
       window.form.price.addEventListener('input', window.form.priceInputHandler);
       window.filters.mapFilters.addEventListener('change', mapFiltersChangeHandler);
-      window.reset.resetButton.addEventListener('click', window.reset.resetButtonClickHandler);
+      window.reset.button.addEventListener('click', window.reset.handler);
     };
     document.addEventListener('mousemove', mouseMoveHandler);
     document.addEventListener('mouseup', mapPinMainMouseupHandler);

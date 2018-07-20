@@ -104,6 +104,7 @@
     successPage.addEventListener('click', successPageClickHandler);
     document.addEventListener('keydown', successPageCloseEscPressHandler);
   };
+
   var errorHandlerUpload = function (errorMessage) {
     var node = document.createElement('div');
     node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: gray;';
@@ -116,7 +117,7 @@
   };
   submitButton.addEventListener('click', function (evt) {
     window.backend.upload(successHandlerUpload, errorHandlerUpload, new FormData(noteForm));
-    window.reset.resetButtonClickHandler(evt);
+    window.reset.handler(evt);
     evt.preventDefault();
   });
 
