@@ -1,7 +1,7 @@
 'use strict';
 (function () {
   var PRICES_TO_COMPARE = {
-    low: 1000,
+    low: 10000,
     high: 50000
   };
   var mapFilters = document.querySelector('.map__filters');
@@ -31,7 +31,7 @@
     };
     var filterByFeatures = function (item) {
       return filteredOffers.filter(function (offerData) {
-        return offerData.offer.fetures.indexOf(item.value) >= 0;
+        return offerData.offer.features.indexOf(item.value) >= 0;
       });
     };
     if (selectorFilters.length !== null) {
@@ -46,12 +46,13 @@
       });
     }
     if (featuresFilters !== null) {
-      filterByFeatures.forEach(function (item) {
+      featuresFilters.forEach(function (item) {
         filteredOffers = filterByFeatures(item);
       });
     }
     if (filteredOffers.length) {
-      window.pin.renderPins(filteredOffers);
+      window.pin.remove();
+      window.pin.render(filteredOffers);
     }
   };
   window.filters = {

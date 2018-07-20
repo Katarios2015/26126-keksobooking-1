@@ -47,9 +47,9 @@
       mapPinMain.style.top = newMapPinMainTop + 'px';
     };
     var mapFiltersChangeHandler = function () {
-      window.pin.removeChild('.map__pin');
+      window.pin.remove();
       window.card.closePopup();
-      window.debounce(window.filters.updatePins(offers), 500);// ЗАМЕНИТЬ
+      window.debounce(window.filters.updatePins(window.pin.offers()), 500);// ЗАМЕНИТЬ
     };
     var mapPinMainMouseupHandler = function (upEvt) {
       upEvt.preventDefault();
@@ -59,7 +59,7 @@
       window.form.activeForm.classList.remove('ad-form--disabled');
       window.form.makeDisabled(false);
       window.form.noteAdress.value = window.form.getPositionMainPin(SIZE_PIN_END);
-      window.pin.addPinsToFragment(true);
+      window.pin.render(window.pin.offers().slice(0, 5));
       window.form.roomNumber.addEventListener('change', window.form.roomNumberChangeHandler);
       window.form.type.addEventListener('change', window.form.typeChangeHandler);
       window.form.timein.addEventListener('change', window.form.timeinChangeHandler);

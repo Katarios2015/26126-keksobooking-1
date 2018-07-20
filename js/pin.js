@@ -2,7 +2,8 @@
 (function () {
   var copyPinsBlock = window.map.mapBlock.querySelector('.map__pins');
   var copyPinTemplate = document.querySelector('#copy_offers').content.querySelector('.map__pin');
-  var renderPins = function (note) {
+
+  var renderPin = function (note) {
     var onePin = copyPinTemplate.cloneNode(true);
 
     onePin.addEventListener('click', function () {
@@ -20,12 +21,20 @@
     var pinImage = onePin.querySelector('img');
     pinImage.src = note.author.avatar;
     pinImage.alt = note.offer.title;
-    return onePin;
+
+    // return onePin;
+    copyPinsBlock.appendChild(onePin);
   };
+
+  var renderPins = function (pins) {
+    pins.forEach(function (item) {
+      renderPin(item);
+    });
+  };
+
   var offers = [];
   var successHandler = function (data) {
     offers = data.slice();
-    renderPins(offers);
   };
   var errorHandler = function (errorMessage) {
     var node = document.createElement('div');
@@ -37,10 +46,22 @@
     node.textContent = errorMessage;
     document.body.insertAdjacentElement('afterbegin', node);
   };
+
+  var removePins = function () {
+    var pins = window.map.mapBlock.querySelectorAll('.map__pin:not(.map__pin--main)');
+    [].forEach.call(pins, function (element) {
+      copyPinsBlock.removeChild(element);
+    });
+  };
+
+  window.backend.load(successHandler, errorHandler);
+
   window.pin = {
-    addPinsToFragment: function () {
-      window.backend.load(successHandler, errorHandler);
+    copyPinsBlock: copyPinsBlock,
+    offers: function () {
+      return offers;
     },
-    copyPinsBlock: copyPinsBlock
+    remove: removePins,
+    render: renderPins
   };
 })();
