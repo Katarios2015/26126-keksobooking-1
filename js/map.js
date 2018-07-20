@@ -54,13 +54,15 @@
     };
     var mapPinMainMouseupHandler = function (upEvt) {
       upEvt.preventDefault();
+      if (window.pin.offers().length === 0) {
+        window.pin.load();
+      }
       document.removeEventListener('mouseup', mapPinMainMouseupHandler);
       document.removeEventListener('mousemove', mouseMoveHandler);
       mapBlock.classList.remove('map--faded');
       window.form.activeForm.classList.remove('ad-form--disabled');
       window.form.makeDisabled(false);
       window.form.noteAdress.value = window.form.getPositionMainPin(SIZE_PIN_END);
-      window.pin.load();
       window.form.roomNumber.addEventListener('change', window.form.roomNumberChangeHandler);
       window.form.type.addEventListener('change', window.form.typeChangeHandler);
       window.form.timein.addEventListener('change', window.form.timeinChangeHandler);
