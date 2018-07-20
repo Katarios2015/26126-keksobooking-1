@@ -9,7 +9,7 @@
 
     if (mapCardPopup) {
       window.map.mapBlock.removeChild(mapCardPopup);
-      document.removeEventListener('keydown', PopupCloseEscPressHandler);
+      document.removeEventListener('keydown', popupCloseEscPressHandler);
     }
   };
   var renderCard = function (note) {
@@ -41,13 +41,13 @@
     photos.removeChild(photoElement);
     card.querySelector('.popup__avatar').src = note.author.avatar;
     copyCardBlock.insertBefore(card, beforeBlockFilter);
-    document.addEventListener('keydown', PopupCloseEscPressHandler);
+    document.addEventListener('keydown', popupCloseEscPressHandler);
     return card;
   };
   var closePopupBtnHandler = function () {
     closePopup();
   };
-  var PopupCloseEscPressHandler = function (evt) {
+  var popupCloseEscPressHandler = function (evt) {
     window.utils.isEscEvent(evt, closePopup);
   };
   window.card = {

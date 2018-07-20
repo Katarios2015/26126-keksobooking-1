@@ -1,3 +1,4 @@
+
 'use strict';
 window.utils = (function () {
   var ESC_KEYCODE = 27;
