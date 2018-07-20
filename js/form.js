@@ -87,21 +87,22 @@
     price.style.borderColor = 'none';
   };
   var successPage = document.querySelector('.success');
-  var SuccessPageCloseEscPressHandler = function (evt) {
+  var successPageCloseEscPressHandler = function (evt) {
     window.utils.isEscEvent(evt, function () {
       successPage.classList.add('hidden');
     });
-    document.removeEventListener('keydown', SuccessPageCloseEscPressHandler);
+    document.removeEventListener('keydown', successPageCloseEscPressHandler);
   };
-  var SuccessPageClickHandler = function () {
+  var successPageClickHandler = function () {
     successPage.classList.add('hidden');
-    successPage.removeEventListener('click', SuccessPageClickHandler);
+    successPage.removeEventListener('click', successPageClickHandler);
   };
   var noteForm = document.querySelector('.ad-form');
+  var submitButton = noteForm.querySelector('.ad-form__submit');
   var successHandlerUpload = function () {
     successPage.classList.remove('hidden');
-    successPage.addEventListener('click', SuccessPageClickHandler);
-    document.addEventListener('keydown', SuccessPageCloseEscPressHandler);
+    successPage.addEventListener('click', successPageClickHandler);
+    document.addEventListener('keydown', successPageCloseEscPressHandler);
   };
   var errorHandlerUpload = function (errorMessage) {
     var node = document.createElement('div');
@@ -113,9 +114,10 @@
     node.textContent = errorMessage;
     document.body.insertAdjacentElement('afterbegin', node);
   };
-  noteForm.addEventListener('submit', function (evt) {
-    window.backend.upload(new FormData(noteForm), successHandlerUpload, errorHandlerUpload);
+  submitButton.addEventListener('click', function (evt) {
+    window.backend.upload(successHandlerUpload, errorHandlerUpload, new FormData(noteForm));
     window.reset.resetButtonClickHandler(evt);
+    evt.preventDefault();
   });
 
   window.form = {

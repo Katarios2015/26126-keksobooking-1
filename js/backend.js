@@ -4,9 +4,9 @@
   var URL_UPLOAD = 'https://js.dump.academy/keksobooking';
   var SUCCESS_CODE = 200;
   var TIMEOUT = 10000;
-  var xhr = new XMLHttpRequest();
 
-  var backend = function (onLoad, onError) {
+  var backend = function (onLoad, onError, cb) {
+    var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.addEventListener('load', function () {
       if (xhr.status === SUCCESS_CODE) {
@@ -22,18 +22,21 @@
       onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
     xhr.timeout = TIMEOUT; // 10s
+    cb(xhr);
   };
 
   window.backend = {
     load: function (onLoad, onError) {
-      backend(onLoad, onError);
-      xhr.open('GET', URL_LOAD);
-      xhr.send();
+      backend(onLoad, onError, function (xhr) {
+        xhr.open('GET', URL_LOAD);
+        xhr.send();
+      });
     },
     upload: function (onLoad, onError, data) {
-      backend(onLoad, onError);
-      xhr.open('POST', URL_UPLOAD);
-      xhr.send(data);
+      backend(onLoad, onError, function (xhr) {
+        xhr.open('POST', URL_UPLOAD);
+        xhr.send(data);
+      });
     }
   };
 })();
