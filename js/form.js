@@ -62,14 +62,18 @@
     timein.value = timeout.value;
   };
   var priceValidHandler = function () {
+    price.setCustomValidity('');
     if (price.validity.rangeOverflow) {
       price.setCustomValidity('Максимальная цена за ночь  1 000 000р.');
+      price.style.borderColor = '#C62222';
     } else if (price.validity.valueMissing) {
       price.setCustomValidity('Поле обязательно для заполнения');
+      price.style.borderColor = '#C62222';
     }
-    price.style.borderColor = '#C62222';
+
   };
   var titleValidHandler = function () {
+    title.setCustomValidity('');
     if (title.validity.valueMissing || title.validity.tooShort) {
       title.setCustomValidity('Заголовок объявления должен быть не менее 30 символов');
       title.style.borderColor = '#C62222';
@@ -98,7 +102,6 @@
     successPage.removeEventListener('click', successPageClickHandler);
   };
   var noteForm = document.querySelector('.ad-form');
-  var submitButton = noteForm.querySelector('.ad-form__submit');
   var successHandlerUpload = function () {
     successPage.classList.remove('hidden');
     successPage.addEventListener('click', successPageClickHandler);
@@ -115,9 +118,11 @@
     node.textContent = errorMessage;
     document.body.insertAdjacentElement('afterbegin', node);
   };
-  submitButton.addEventListener('click', function (evt) {
-    window.backend.upload(successHandlerUpload, errorHandlerUpload, new FormData(noteForm));
-    window.reset.handler(evt);
+  noteForm.addEventListener('submit', function (evt) {
+    if (window.form.title.checkValidity() && window.form.price.checkValidity()) {
+      window.backend.upload(successHandlerUpload, errorHandlerUpload, new FormData(noteForm));
+      window.reset.handler(evt);
+    }
     evt.preventDefault();
   });
 

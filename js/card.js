@@ -32,7 +32,6 @@
         }
       });
     }
-
     card.querySelector('.popup__description').textContent = note.offer.description;
     var photos = card.querySelector('.popup__photos');
     var photoElement = photos.querySelector('.popup__photo');
