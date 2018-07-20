@@ -12,6 +12,7 @@
     '3': ['3', '2', '1'],
     '100': ['0']
   };
+  var REMOVE_TIMEOUT = 5000;
   var noteFormFields = document.querySelectorAll('fieldset');
   var makeDisabled = function (status) {
     if (noteFormFields.length > 0) {
@@ -117,6 +118,9 @@
     node.style.fontSize = '30px';
     node.textContent = errorMessage;
     document.body.insertAdjacentElement('afterbegin', node);
+    setTimeout(function () {
+      node.remove();
+    }, REMOVE_TIMEOUT);
   };
   noteForm.addEventListener('submit', function (evt) {
     if (window.form.title.checkValidity() && window.form.price.checkValidity()) {

@@ -1,5 +1,6 @@
 'use strict';
 (function () {
+  var REMOVE_TIMEOUT = 5000;
   var copyPinsBlock = window.map.mapBlock.querySelector('.map__pins');
   var copyPinTemplate = document.querySelector('#copy_offers').content.querySelector('.map__pin');
 
@@ -46,6 +47,9 @@
     node.style.fontSize = '30px';
     node.textContent = errorMessage;
     document.body.insertAdjacentElement('afterbegin', node);
+    setTimeout(function () {
+      node.remove();
+    }, REMOVE_TIMEOUT);
   };
 
   var removePins = function () {
